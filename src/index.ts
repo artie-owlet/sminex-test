@@ -11,6 +11,9 @@ import { Admin } from './model/admin';
 import { Client } from './model/client';
 import { onError } from './model/error';
 
+import swaggerUi from 'swagger-ui-express';
+import doc from './openapi.json';
+
 try {
     const conf = getConfig();
 
@@ -23,12 +26,16 @@ try {
     
     const app = express();
     app.set('trust proxy', true);
+
     app.post('/login', jsonParser({
         type: 'application/json',
         strict: true,
     }), auth.login.bind(auth));
     app.use('/admin/v1', cookieParser(), auth.auth.bind(auth), Admin.createRouter(adminDb));
     app.use('/client/v1', cookieParser(), auth.auth.bind(auth), Client.createRouter(clientDb));
+
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(doc));
+
     app.use(onError);
 
     app.listen(conf.port, '0.0.0.0', () => log.info('Application started'));
