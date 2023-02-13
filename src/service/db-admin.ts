@@ -14,7 +14,7 @@ async function uploadClassifiers(client: PoolClient, data: IClassifierNode[], le
         const {rows} = await client.query<{clId: number}>(
             `INSERT INTO classifiers (code, description, level, parent_id)`
             + ` VALUES($1, $2, $3, $4)`
-            + ` RETURNING cl_id as clId`,
+            + ` RETURNING cl_id AS "clId"`,
             [cl.code, cl.description, level, parentId]);
         if (rows.length === 0) {
             throw new Error(`Failed to insert classifier ${cl.code}`);
@@ -30,8 +30,7 @@ export class AdminDatabase extends Database {
         await this.db.query<{userId: number;}>(
             `INSERT INTO users (login, passhash, admin, active)`
             + ` VALUES($1, $2, $3, $4)`
-            + ` ON CONFLICT DO UPDATE SET passhash = $2, admin = $3, active = $4`
-            + ` RETURNING user_id as userId`,
+            + ` ON CONFLICT (login) DO UPDATE SET passhash = $2, admin = $3, active = $4`,
             [login, passhash, admin, active]);
     }
 

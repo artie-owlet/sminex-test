@@ -1,4 +1,6 @@
+import cookieParser from 'cookie-parser';
 import express from 'express';
+import { json as jsonParser } from 'express';
 
 import { getConfig } from './config';
 import { log } from './log';
@@ -21,9 +23,12 @@ try {
     
     const app = express();
     app.set('trust proxy', true);
-    app.post('/login', auth.login.bind(auth));
-    app.use('/admin/v1', auth.auth.bind(auth), Admin.createRouter(adminDb));
-    app.use('/client/v1', auth.auth.bind(auth), Client.createRouter(clientDb));
+    app.post('/login', jsonParser({
+        type: 'application/json',
+        strict: true,
+    }), auth.login.bind(auth));
+    app.use('/admin/v1', cookieParser(), auth.auth.bind(auth), Admin.createRouter(adminDb));
+    app.use('/client/v1', cookieParser(), auth.auth.bind(auth), Client.createRouter(clientDb));
     app.use(onError);
 
     app.listen(conf.port, '0.0.0.0', () => log.info('Application started'));

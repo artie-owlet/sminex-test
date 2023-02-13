@@ -11,7 +11,8 @@
     "clean": "rm -rf app/",
     "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx src/ test/",
     "test": "mocha -r ts-node/register/transpile-only test/*.ts",
-    "coverage": "nyc npm run test"
+    "coverage": "nyc npm run test",
+    "start": "node build/index.js"
   },
   "license": "MIT",
   "dependencies": {

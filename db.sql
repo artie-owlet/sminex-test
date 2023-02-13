@@ -46,4 +46,7 @@ CREATE USER sminex_client;
 GRANT SELECT ON users TO sminex_client;
 GRANT SELECT ON classifiers TO sminex_client;
 
+INSERT INTO users (login, passhash, admin)
+    VALUES ('admin', '$2b$10$xrLbSlwa76tmApaXLvZ07uixJtPiEKjqmtLxNMOmyaynS35xz/itm', true);
+
 COMMIT;

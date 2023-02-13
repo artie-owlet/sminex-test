@@ -1,5 +1,4 @@
-
-import { Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 
 import { ClientDatabase } from '../service/db-client';
 
@@ -23,27 +22,31 @@ export class Client {
     ) {
     }
 
-    public async getClassifier(req: Request, res: Response): Promise<void> {
-        const code = req.params['code'];
-        const clList = await this.db.getClassifier(code);
-        if (clList.length === 0) {
-            res.status(404)
-                .end({
-                    error: 'Not found',
-                });
-            return;
+    public async getClassifier(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const code = req.params['code'];
+            const clList = await this.db.getClassifier(code);
+            if (clList.length === 0) {
+                res.status(404)
+                    .send({
+                        error: 'Not found',
+                    });
+                return;
+            }
+    
+            const path = [] as string[];
+            const result: IGetClassifierResult[] = clList.map((cl) => {
+                path.push(cl.code);
+                return {
+                    code: cl.code,
+                    description: cl.description,
+                    level: cl.level,
+                    path: [...path],
+                };
+            });
+            res.send(result);
+        } catch (err) {
+            next(err);
         }
-
-        const path = [] as string[];
-        const result: IGetClassifierResult[] = clList.map((cl) => {
-            path.push(cl.code);
-            return {
-                code: cl.code,
-                description: cl.description,
-                level: cl.level,
-                path: [...path],
-            };
-        });
-        res.end(result);
     }
 }

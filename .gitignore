@@ -1,5 +1,5 @@
 node_modules/
-app/
+build/
 .eslintcache
 .nyc_output/
 coverage/

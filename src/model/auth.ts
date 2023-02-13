@@ -26,43 +26,51 @@ export class Auth {
     ) {
     }
 
-    public async login(req: IApiRequest<ILoginData>, res: Response): Promise<void> {
-        const login = req.body.login;
-        const password = req.body.password;
-        if (typeof login !== 'string' || typeof password !== 'string') {
-            throw new ApiError('Invalid params', 'Invalid params');
+    public async login(req: IApiRequest<ILoginData>, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const login = req.body.login;
+            const password = req.body.password;
+            if (typeof login !== 'string' || typeof password !== 'string') {
+                throw new ApiError('Invalid params', 'Invalid params');
+            }
+            const userRecord = await this.db.getUserData(login);
+            if (!userRecord) {
+                throw new ApiError(`Unknown login ${login}`);
+            }
+            if (!userRecord.active) {
+                throw new ApiError(`User blocked, login=${login}`);
+            }
+            if (!await compare(password, userRecord.passhash)) {
+                throw new ApiError(`Wrong password, login=${login}, password=${password}`);
+            }
+    
+            await this.setUserToken(login, userRecord.admin, res);
+            res.send({});
+        } catch (err) {
+            next(err);
         }
-        const userRecord = await this.db.getUserData(login);
-        if (!userRecord) {
-            throw new ApiError(`Unknown login ${login}`);
-        }
-        if (!userRecord.active) {
-            throw new ApiError(`User blocked, login=${login}`);
-        }
-        if (!await compare(password, userRecord.passhash)) {
-            throw new ApiError(`Wrong password, login=${login}, password=${password}`);
-        }
-
-        await this.setUserToken(login, userRecord.admin, res);
-        res.end({});
     }
 
     public async auth(req: IApiRequest, res: Response, next: NextFunction): Promise<void> {
-        if (typeof req.cookies.auth !== 'string') {
-            throw new ApiError('No auth token');
-        }
         try {
-            req.userData = verify(req.cookies.auth, this.secret) as IUserData;
-        } catch (err) {
-            if (err instanceof TokenExpiredError) {
-                await this.reauth(req, res);
-            } else if (err instanceof JsonWebTokenError) {
-                throw new ApiError(`JWT Error on auth token: ${err.message}`);
-            } else {
-                throw err;
+            if (typeof req.cookies.auth !== 'string') {
+                throw new ApiError('No auth token');
             }
+            try {
+                req.userData = verify(req.cookies.auth, this.secret) as IUserData;
+            } catch (err) {
+                if (err instanceof TokenExpiredError) {
+                    await this.reauth(req, res);
+                } else if (err instanceof JsonWebTokenError) {
+                    throw new ApiError(`JWT Error on auth token: ${err.message}`);
+                } else {
+                    throw err;
+                }
+            }
+            next();
+        } catch (err) {
+            next(err);
         }
-        next();
     }
 
     private async reauth(req: IApiRequest, res: Response): Promise<void> {

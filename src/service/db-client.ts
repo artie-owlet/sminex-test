@@ -34,7 +34,7 @@ export class ClientDatabase extends Database {
     public async getClassifier(code: string): Promise<IClassifierRecord[]> {
         const res = [] as IClassifierRecord[];
         const {rows} = await this.db.query<IClassifierRecord>(
-            `SELECT code, description, level, parent_id as parentId`
+            `SELECT code, description, level, parent_id AS "parentId"`
             + ` FROM classifiers WHERE code = $1 LIMIT 1`,
             [code]);
         if (rows.length === 0) {
@@ -45,7 +45,7 @@ export class ClientDatabase extends Database {
         let parentId = rows[0].parentId;
         do {
             const {rows} = await this.db.query<IClassifierRecord>(
-                `SELECT code, description, level, parent_id as parentId`
+                `SELECT code, description, level, parent_id AS "parentId"`
                 + ` FROM classifiers WHERE cl_id = $1 LIMIT 1`,
                 [parentId]);
             if (rows.length === 0) {
