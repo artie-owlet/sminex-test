@@ -1,6 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 
 import { log } from '../log';
+
+import { IApiRequest } from './api-request';
 
 export class ApiError extends Error {
     constructor(
@@ -11,7 +13,7 @@ export class ApiError extends Error {
     }
 }
 
-export function onError(err: Error, _req: Request, res: Response, _next: NextFunction): void {
+export function onError(err: Error, _req: IApiRequest, res: Response, _next: NextFunction): void {
     if (err instanceof ApiError) {
         log.warn(err.message);
         res.status(403)
@@ -19,6 +21,7 @@ export function onError(err: Error, _req: Request, res: Response, _next: NextFun
                 error: err.userMessage,
             });
     } else {
+        /* istanbul ignore next: else */
         log.error(err instanceof Error ? err.message : String(err));
         res.status(500)
             .send({

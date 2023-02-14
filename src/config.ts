@@ -14,6 +14,7 @@ export interface IConfig {
 let config: IConfig | undefined;
 
 export function getConfig(): IConfig {
+    /* istanbul ignore next */
     if (config !== undefined) {
         return config;
     }

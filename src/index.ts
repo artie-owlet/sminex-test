@@ -4,8 +4,8 @@ import { json as jsonParser } from 'express';
 
 import { getConfig } from './config';
 import { log } from './log';
-import { AdminDatabase } from './service/db-admin';
-import { ClientDatabase } from './service/db-client';
+import { AdminDatabase } from './service/admin-database';
+import { ClientDatabase } from './service/client-database';
 import { Auth } from './model/auth';
 import { Admin } from './model/admin';
 import { Client } from './model/client';

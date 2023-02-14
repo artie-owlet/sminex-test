@@ -2,8 +2,8 @@ import { compare } from 'bcrypt';
 import { CookieOptions, NextFunction, Response } from 'express';
 import { sign, verify, JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
-import { ClientDatabase } from '../service/db-client';
-import { IApiRequest, IUserData } from './request';
+import { ClientDatabase } from '../service/client-database';
+import { IApiRequest, IUserData } from './api-request';
 import { ApiError } from './error';
 
 interface ILoginData {

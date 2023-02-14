@@ -1,10 +1,10 @@
 {
   "name": "sminex-test",
   "version": "1.0.0-dev.0",
-  "main": "app/index.js",
-  "types": "app/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
-    "app/"
+    "build/"
   ],
   "scripts": {
     "build": "tsc",
@@ -31,7 +31,6 @@
     "@types/bcrypt": "^5.0.0",
     "@types/body-parser": "^1.19.2",
     "@types/chai": "^4.3.4",
-    "@types/chai-as-promised": "^7.1.5",
     "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.1",
@@ -42,7 +41,6 @@
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "chai": "^4.3.7",
-    "chai-as-promised": "^7.1.1",
     "eslint": "^8.34.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",

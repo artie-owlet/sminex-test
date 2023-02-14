@@ -43,7 +43,7 @@ GRANT SELECT, INSERT, UPDATE ON users TO sminex_admin;
 GRANT SELECT, INSERT ON classifiers TO sminex_admin;
 
 CREATE USER sminex_client;
-GRANT SELECT ON users TO sminex_client;
+GRANT SELECT, UPDATE (token) ON users TO sminex_client;
 GRANT SELECT ON classifiers TO sminex_client;
 
 INSERT INTO users (login, passhash, admin)

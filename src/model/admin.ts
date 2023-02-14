@@ -2,11 +2,11 @@ import { hash } from 'bcrypt';
 import { parse } from 'csv-parse/sync';
 import { NextFunction, Response, Router, json as jsonParser, text as textParser } from 'express';
 
-import { AdminDatabase, IClassifierNode } from '../service/db-admin';
-import { IApiRequest } from './request';
+import { AdminDatabase, IClassifierNode } from '../service/admin-database';
+import { IApiRequest } from './api-request';
 import { ApiError } from './error';
 
-interface ISetUserParams {
+export interface ISetUserParams {
     login: string;
     password: string;
     admin: boolean;
@@ -18,15 +18,15 @@ const SALT_ROUNDS = 10;
 class UploadParseError extends Error {}
 
 export class Admin {
+    /* istanbul ignore next */
     public static createRouter(db: AdminDatabase): Router {
         const router = Router();
         const model = new Admin(db);
         router.use(model.checkAccess.bind(model));
-        router.use(jsonParser({
+        router.post('/user', jsonParser({
             type: 'application/json',
             strict: true,
-        }));
-        router.post('/user', model.setUser.bind(model));
+        }), model.setUser.bind(model));
         router.post('/upload', textParser({
             type: 'text/csv',
             limit: '1mb',
@@ -99,9 +99,11 @@ export class Admin {
                     path[level] = cl;
                     currentLevel = level;
                 } catch (err) {
+                    /* istanbul ignore else */
                     if (err instanceof UploadParseError) {
                         throw new ApiError('Upload error', `Malformed file, at line ${lineId + 2}`);
                     }
+                    /* istanbul ignore next */
                     throw err;
                 }
             });

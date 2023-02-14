@@ -31,6 +31,7 @@ export class Database extends EventEmitter {
         try {
             await client.query('SET search_path = sminex');
         } catch (err) {
+            /* istanbul ignore next */
             this.emit('error', err instanceof Error ? err : new Error(String(err)));
         }
     }

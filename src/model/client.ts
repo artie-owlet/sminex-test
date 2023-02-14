@@ -1,6 +1,7 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { NextFunction, Response, Router } from 'express';
 
-import { ClientDatabase, IClassifierRecord } from '../service/db-client';
+import { ClientDatabase, IClassifierRecord } from '../service/client-database';
+import { IApiRequest } from './api-request';
 
 interface IClassifier {
     code: string;
@@ -8,7 +9,6 @@ interface IClassifier {
     level: number;
     path: string[];
 }
-
 
 function classifiersRecordsToResult(clList: IClassifierRecord[]): IClassifier[] {
     const clMap = new Map<number, IClassifier>();
@@ -26,6 +26,7 @@ function classifiersRecordsToResult(clList: IClassifierRecord[]): IClassifier[] 
 }
 
 export class Client {
+    /* istanbul ignore next */
     public static createRouter(db: ClientDatabase): Router {
         const router = Router();
         const model = new Client(db);
@@ -39,21 +40,23 @@ export class Client {
     ) {
     }
 
-    public async getClassifiersByCode(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async getClassifiersByCode(req: IApiRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const code = req.params['code'];
             const clList = await this.db.getClassifiersByCode(code);
             res.send(classifiersRecordsToResult(clList));
         } catch (err) {
+            /* istanbul ignore next */
             next(err);
         }
     }
 
-    public async getAllClassifiers(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async getAllClassifiers(_req: IApiRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             const clList = await this.db.getAllClassifiers();
             res.send(classifiersRecordsToResult(clList));
         } catch (err) {
+            /* istanbul ignore next */
             next(err);
         }
     }

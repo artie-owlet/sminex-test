@@ -1,6 +1,6 @@
 import { PoolClient } from 'pg';
 
-import { Database } from './db';
+import { Database } from './database';
 
 export interface IClassifierNode {
     code: string;
@@ -16,9 +16,6 @@ async function uploadClassifiers(client: PoolClient, data: IClassifierNode[], le
             + ` VALUES($1, $2, $3, $4)`
             + ` RETURNING cl_id AS "clId"`,
             [cl.code, cl.description, level, parentId]);
-        if (rows.length === 0) {
-            throw new Error(`Failed to insert classifier ${cl.code}`);
-        }
         if (cl.children.length > 0) {
             return uploadClassifiers(client, cl.children, level + 1, rows[0].clId);
         }
