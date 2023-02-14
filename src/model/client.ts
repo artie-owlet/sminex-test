@@ -1,19 +1,36 @@
 import { NextFunction, Request, Response, Router } from 'express';
 
-import { ClientDatabase } from '../service/db-client';
+import { ClientDatabase, IClassifierRecord } from '../service/db-client';
 
-interface IGetClassifierResult {
+interface IClassifier {
     code: string;
     description: string;
     level: number;
     path: string[];
 }
 
+
+function classifiersRecordsToResult(clList: IClassifierRecord[]): IClassifier[] {
+    const clMap = new Map<number, IClassifier>();
+    return clList.map((clRec) => {
+        const parent = clMap.get(clRec.parentId);
+        const cl: IClassifier = {
+            code: clRec.code,
+            description: clRec.description,
+            level: clRec.level,
+            path: (parent !== undefined) ? [...parent.path, clRec.code] : [clRec.code],
+        };
+        clMap.set(clRec.id, cl);
+        return cl;
+    });
+}
+
 export class Client {
     public static createRouter(db: ClientDatabase): Router {
         const router = Router();
         const model = new Client(db);
-        router.get('/classifier/:code', model.getClassifier.bind(model));
+        router.get('/classifiers/:code', model.getClassifiersByCode.bind(model));
+        router.get('/classifiers', model.getAllClassifiers.bind(model));
         return router;
     }
 
@@ -22,29 +39,20 @@ export class Client {
     ) {
     }
 
-    public async getClassifier(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async getClassifiersByCode(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const code = req.params['code'];
-            const clList = await this.db.getClassifier(code);
-            if (clList.length === 0) {
-                res.status(404)
-                    .send({
-                        error: 'Not found',
-                    });
-                return;
-            }
-    
-            const path = [] as string[];
-            const result: IGetClassifierResult[] = clList.map((cl) => {
-                path.push(cl.code);
-                return {
-                    code: cl.code,
-                    description: cl.description,
-                    level: cl.level,
-                    path: [...path],
-                };
-            });
-            res.send(result);
+            const clList = await this.db.getClassifiersByCode(code);
+            res.send(classifiersRecordsToResult(clList));
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public async getAllClassifiers(_req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const clList = await this.db.getAllClassifiers();
+            res.send(classifiersRecordsToResult(clList));
         } catch (err) {
             next(err);
         }

@@ -82,9 +82,9 @@
         ]
       }
     },
-    "/client/v1/classifier/{code}": {
+    "/client/v1/classifiers/{code}": {
       "get": {
-        "summary": "Get classifier with parents",
+        "summary": "Get classifier with code={code} and its children",
         "parameters": [
           {
             "name": "code",
@@ -97,7 +97,20 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/Classifier"
+            "$ref": "#/components/responses/Classifiers"
+          }
+        },
+        "tags": [
+          "client"
+        ]
+      }
+    },
+    "/client/v1/classifiers": {
+      "get": {
+        "summary": "Get all classifiers",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Classifiers"
           }
         },
         "tags": [
@@ -150,12 +163,12 @@
           }
         }
       },
-      "Classifier": {
-        "description": "Classifier with parents",
+      "Classifiers": {
+        "description": "Classifiers list",
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/Classifier"
+              "$ref": "#/components/schemas/Classifiers"
             }
           }
         }
@@ -200,7 +213,7 @@
           "active"
         ]
       },
-      "Classifier": {
+      "Classifiers": {
         "type": "array",
         "items": {
           "type": "object",

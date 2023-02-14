@@ -7,7 +7,8 @@ export interface IUserRecord {
     active: boolean;
 }
 
-interface IClassifierRecord {
+export interface IClassifierRecord {
+    id: number;
     code: string;
     description: string;
     level: number;
@@ -31,30 +32,20 @@ export class ClientDatabase extends Database {
             [token, login]);
     }
 
-    public async getClassifier(code: string): Promise<IClassifierRecord[]> {
-        const res = [] as IClassifierRecord[];
+    public async getClassifiersByCode(code: string): Promise<IClassifierRecord[]> {
         const {rows} = await this.db.query<IClassifierRecord>(
-            `SELECT code, description, level, parent_id AS "parentId"`
-            + ` FROM classifiers WHERE code = $1 LIMIT 1`,
+            `WITH RECURSIVE r AS`
+            + ` (SELECT cl_id, code, description, level, parent_id FROM classifiers WHERE code = $1`
+            + ` UNION SELECT c.cl_id, c.code, c.description, c.level, c.parent_id FROM classifiers AS c`
+            + ` INNER JOIN r on c.parent_id = r.cl_id)`
+            + ` SELECT cl_id AS id, code, description, level, parent_id AS "parentId" FROM r ORDER BY level`,
             [code]);
-        if (rows.length === 0) {
-            return [];
-        }
-        res.push(rows[0]);
-        let level = rows[0].level;
-        let parentId = rows[0].parentId;
-        do {
-            const {rows} = await this.db.query<IClassifierRecord>(
-                `SELECT code, description, level, parent_id AS "parentId"`
-                + ` FROM classifiers WHERE cl_id = $1 LIMIT 1`,
-                [parentId]);
-            if (rows.length === 0) {
-                return res;
-            }
-            res.push(rows[0]);
-            level = rows[0].level;
-            parentId = rows[0].parentId;
-        } while (level > 1);
-        return res.reverse();
+        return rows;
+    }
+
+    public async getAllClassifiers(): Promise<IClassifierRecord[]> {
+        const {rows} = await this.db.query<IClassifierRecord> (
+            'SELECT cl_id AS id, code, description, level, parent_id AS "parentId" FROM classifiers ORDER BY level');
+        return rows;
     }
 }
