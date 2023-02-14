@@ -1,0 +1,255 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Sminex test app",
+    "version": "1.0.0",
+    "description": "Sminex test app"
+  },
+  "tags": [
+    {
+      "name": "login"
+    },
+    {
+      "name": "admin"
+    },
+    {
+      "name": "client"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "Login to API",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Login"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "tags": [
+          "login"
+        ]
+      }
+    },
+    "/admin/v1/user": {
+      "post": {
+        "summary": "Create or modify user",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SetUser"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/v1/upload": {
+      "post": {
+        "summary": "Upload new classifiers",
+        "requestBody": {
+          "content": {
+            "text/csv": {
+              "schema": {
+                "type": "string"
+              },
+              "example": "Code;Description;Level\nA;Bricks;1\n"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/client/v1/classifiers/{code}": {
+      "get": {
+        "summary": "Get classifier with code={code} and its children",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Classifiers"
+          }
+        },
+        "tags": [
+          "client"
+        ]
+      }
+    },
+    "/client/v1/classifiers": {
+      "get": {
+        "summary": "Get all classifiers",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Classifiers"
+          }
+        },
+        "tags": [
+          "client"
+        ]
+      }
+    }
+  },
+  "components": {
+    "requestBodies": {
+      "Login": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Login"
+            }
+          }
+        },
+        "required": true
+      },
+      "SetUser": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SetUser"
+            }
+          }
+        },
+        "required": true
+      }
+    },
+    "responses": {
+      "OK": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EmptyResponse"
+            }
+          }
+        }
+      },
+      "Error": {
+        "description": "Any error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Classifiers": {
+        "description": "Classifiers list",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Classifiers"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Login": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "login",
+          "password"
+        ]
+      },
+      "SetUser": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "admin": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "login",
+          "password",
+          "admin",
+          "active"
+        ]
+      },
+      "Classifiers": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "level": {
+              "type": "integer"
+            },
+            "path": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "EmptyResponse": {
+        "type": "object"
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      }
+    }
+  }
+}

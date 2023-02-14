@@ -1,6 +1,7 @@
 node_modules/
-dist/
+build/
 .eslintcache
 .nyc_output/
 coverage/
 public/
+cookie.txt
